@@ -4,11 +4,20 @@
 # Written by Bharath Hariharan
 # --------------------------------------------------------
 from __future__ import print_function
+import argparse
 import xml.etree.ElementTree as ET
 import os,sys
 import pickle
 import numpy as np
+def parse_args():
+    """Parse input arguments."""
+    parser = argparse.ArgumentParser(description='mAP Calculation')
 
+    parser.add_argument('--path', dest='path', help='The data path', type=str)
+    args = parser.parse_args()
+
+    return args
+    
 def parse_rec(filename):
     """ Parse a PASCAL VOC xml file """
     tree = ET.parse(filename)
@@ -224,7 +233,8 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
     cachedir = os.path.join(_devkit_path, 'annotations_cache')
     aps = []
     # The PASCAL VOC metric changed in 2010
-    use_07_metric = True if int(_year) < 2010 else False
+    # use_07_metric = True if int(_year) < 2010 else False
+    use_07_metric = False
     print('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
@@ -238,7 +248,7 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
         aps += [ap]
         print('AP for {} = {:.4f}'.format(cls, ap))
         with open(os.path.join(output_dir, cls + '_pr.pkl'), 'w') as f:
-            cPickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
+            pickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
     print('Mean AP = {:.4f}'.format(np.mean(aps)))
     print('~~~~~~~~')
     print('Results:')
@@ -246,16 +256,8 @@ def _do_python_eval(res_prefix, output_dir = 'output'):
         print('{:.3f}'.format(ap))
     print('{:.3f}'.format(np.mean(aps)))
     print('~~~~~~~~')
-    print('')
-    print('--------------------------------------------------------------')
-    print('Results computed with the **unofficial** Python eval code.')
-    print('Results should be very close to the official MATLAB eval code.')
-    print('Recompute with `./tools/reval.py --matlab ...` for your paper.')
-    print('-- Thanks, The Management')
-    print('--------------------------------------------------------------')
 
 
 if __name__ == '__main__':
-    #res_prefix = '/home/tju/keras-detection/keras-frcnn/tmp/comp3_det_test_'    
-    res_prefix = sys.argv[1]
-    _do_python_eval(res_prefix, output_dir = 'output')
+    args = parse_args()
+    _do_python_eval(args.path, output_dir = 'output')

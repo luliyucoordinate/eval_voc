@@ -2,7 +2,7 @@
 
 # How to use
 
-Add path behind `eval_voc.py`.  The path looks like this `/home/data/VOCdevkit` 
+Add detection result path behind `eval_voc.py`.  The path looks like this `/home/data/VOCdevkit` 
 
 ```shell
 python eval_voc.py --path /home/data/VOCdevkit
